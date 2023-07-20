@@ -1,11 +1,57 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from '@/styles/Home.module.css'
-
-const inter = Inter({ subsets: ['latin'] })
+import Head from "next/head";
+import styles from "@/styles/Home.module.css";
+import { useState } from "react";
+import {
+  Box,
+  Text,
+  Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  Input,
+  HStack,
+  Select,
+} from "@chakra-ui/react";
+import { Group, ListItem } from "../schemas";
 
 export default function Home() {
+  const [groups, setGroups] = useState<Group[]>([
+    {
+      name: "Health",
+      items: [
+        { name: "Run", completed: false },
+        { name: "Yoga", completed: false },
+      ],
+    },
+    {
+      name: "Groceries",
+      items: [
+        { name: "Banana", completed: false },
+        { name: "Apples", completed: false },
+      ],
+    },
+  ]);
+  const [groupName, setGroupName] = useState<string>("");
+  const [itemToMove, setItemToMove] = useState<ListItem | null>(null);
+  const [groupToMoveFrom, setGroupToMoveFrom] = useState<Group | null>(null);
+
+  const {
+    isOpen: isOpenGroup,
+    onOpen: onOpenGroup,
+    onClose: onCloseGroup,
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenMoveItem,
+    onOpen: onOpenMoveItem,
+    onClose: onCloseMoveItem,
+  } = useDisclosure();
+
   return (
     <>
       <Head>
@@ -15,109 +61,75 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
+        <Box>
+          <Text fontWeight={"bold"} fontSize={"4xl"}>
+            To-Do List App
+          </Text>
+          <Button onClick={onOpenGroup}>Add Group</Button>
+          {groups.map((group) => (
+            <Box key={group.name} marginBottom={20}>
+              <Text>{group.name}</Text>
+              <Button>Add Item</Button>
+              {group.items.map((item) => (
+                <HStack key={item.name}>
+                  <Text>{item.name}</Text>
+                  <Button onClick={}>Move</Button>
+                </HStack>
+              ))}
+            </Box>
+          ))}
+        </Box>
+
+        <Modal isOpen={isOpenGroup} onClose={onCloseGroup}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Add a Group</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Input
+                placeholder="Get groceries"
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
               />
-            </a>
-          </div>
-        </div>
+            </ModalBody>
 
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
-          />
-          <div className={styles.thirteen}>
-            <Image
-              src="/thirteen.svg"
-              alt="13"
-              width={40}
-              height={31}
-              priority
-            />
-          </div>
-        </div>
+            <ModalFooter>
+              <Button
+                colorScheme="blue"
+                mr={3}
+                onClick={() => {
+                  setGroups([...groups, { name: groupName, items: [] }]);
+                }}
+              >
+                Add
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
 
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
+        <Modal isOpen={isOpenMoveItem} onClose={onCloseMoveItem}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Move Item</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Select placeholder="Select list to move to">
+                {groups.map((group) => (
+                  <option value={group.name} key={group.name}>
+                    {group.name}
+                  </option>
+                ))}
+              </Select>
+            </ModalBody>
 
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
-        </div>
+            <ModalFooter>
+              <Button colorScheme="blue" mr={3} onClick={() => {}}>
+                Move
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </main>
     </>
-  )
+  );
 }
